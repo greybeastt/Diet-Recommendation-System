@@ -5,7 +5,6 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 
-
 def scaling(dataframe):
     scaler=StandardScaler()
     prep_data=scaler.fit_transform(dataframe.iloc[:,6:15].to_numpy())
@@ -36,15 +35,16 @@ def apply_pipeline(pipeline,_input,extracted_data):
     _input=np.array(_input).reshape(1,-1)
     return extracted_data.iloc[pipeline.transform(_input)[0]]
 
-def recommend(dataframe,_input,ingredients=[],params={'n_neighbors':5,'return_distance':False}):
-        extracted_data=extract_data(dataframe,ingredients)
-        if extracted_data.shape[0]>=params['n_neighbors']:
-            prep_data,scaler=scaling(extracted_data)
-            neigh=nn_predictor(prep_data)
-            pipeline=build_pipeline(neigh,scaler,params)
-            return apply_pipeline(pipeline,_input,extracted_data)
-        else:
-            return None
+import pandas as pd
+def recommend(dataset,_input,ingredients=[],params={'n_neighbors':5,'return_distance':False})-> pd.DataFrame:
+    extracted_data=extract_data(dataset,ingredients)
+    if extracted_data.shape[0]>=params['n_neighbors']:
+        prep_data,scaler=scaling(extracted_data)
+        neigh=nn_predictor(prep_data)
+        pipeline=build_pipeline(neigh,scaler,params)
+        return apply_pipeline(pipeline,_input,extracted_data)
+    else:
+       raise Exception("an error occured") 
 
 def extract_quoted_strings(s):
     # Find all the strings inside double quotes
@@ -62,4 +62,3 @@ def output_recommended_recipes(dataframe):
     else:
         output=None
     return output
-
